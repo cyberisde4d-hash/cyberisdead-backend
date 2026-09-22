@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.21.2",
+    "multer": "^2.4.0",
+    "tumblr.js": "^5.0.1"
+  }
+}
