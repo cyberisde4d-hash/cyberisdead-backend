@@ -5,6 +5,7 @@
   },
   "dependencies": {
     "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
     "express": "^4.21.2",
     "multer": "^2.4.0",
     "tumblr.js": "^5.0.1"
