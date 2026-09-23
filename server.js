@@ -618,9 +618,6 @@ app.get("/api/audio-proxy", async (req, res) => {
   try {
     const url = req.query.url;
 
-    console.log("Proxy recebeu:");
-    console.log(url);
-
     if (!url) {
       return res.status(400).send("URL ausente");
     }
@@ -628,40 +625,33 @@ app.get("/api/audio-proxy", async (req, res) => {
     const response = await axios.get(url, {
       responseType: "stream",
       headers: {
-        "User-Agent": "Mozilla/5.0"
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "audio/mpeg"
       }
     });
 
-    console.log("Status Substack:", response.status);
-    console.log("Content-Type:", response.headers["content-type"]);
-
     res.setHeader(
       "Content-Type",
-      "audio/mpeg"
+      response.headers["content-type"] || "audio/mpeg"
     );
+
+    if (response.headers["content-length"]) {
+      res.setHeader(
+        "Content-Length",
+        response.headers["content-length"]
+      );
+    }
 
     res.setHeader(
       "Cache-Control",
-      "no-cache"
+      "public, max-age=3600"
     );
 
     response.data.pipe(res);
 
   } catch (error) {
-
-    console.error("ERRO COMPLETO DO PROXY:");
-
-    console.error(
-      error.response?.status
-    );
-
-    console.error(
-      error.response?.data || error.message
-    );
-
-    res.status(500).send(
-      "Erro no proxy de áudio"
-    );
+    console.error("ERRO PROXY:", error.message);
+    res.status(500).send("Erro no proxy de áudio");
   }
 });
 
