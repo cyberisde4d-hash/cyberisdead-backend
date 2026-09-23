@@ -615,6 +615,13 @@ app.get(
 );
 
 app.get("/api/audio-proxy", async (req,res)=>{
+  console.log("AUDIO PROXY NOVO ATIVO");
+
+  res.setHeader(
+  "X-Test-Proxy",
+  "novo"
+);
+
   try {
     const url = req.query.url;
 
@@ -643,8 +650,7 @@ app.get("/api/audio-proxy", async (req,res)=>{
 
     res.status(response.status);
 
-
-    res.setHeader(
+res.setHeader(
   "Content-Type",
   "audio/mpeg"
 );
@@ -654,44 +660,31 @@ res.setHeader(
   "bytes"
 );
 
-
-
-    if(response.headers["content-range"]){
+if(response.headers["content-range"]){
   res.setHeader(
     "Content-Range",
     response.headers["content-range"]
   );
 }
 
+if(response.headers["content-length"]){
+  res.setHeader(
+    "Content-Length",
+    response.headers["content-length"]
+  );
+}
 
-    if(response.headers["accept-ranges"]){
-      res.setHeader(
-        "Accept-Ranges",
-        response.headers["accept-ranges"]
-      );
-    }else{
-      res.setHeader(
-        "Accept-Ranges",
-        "bytes"
-      );
-    }
+res.setHeader(
+  "Cache-Control",
+  "public,max-age=3600"
+);
 
+res.setHeader(
+  "Content-Disposition",
+  "inline"
+);
 
-    if(response.headers["content-length"]){
-      res.setHeader(
-        "Content-Length",
-        response.headers["content-length"]
-      );
-    }
-
-
-    res.setHeader(
-      "Cache-Control",
-      "public,max-age=3600"
-    );
-
-
-    response.data.pipe(res);
+response.data.pipe(res);
 
 
   } catch(error){
