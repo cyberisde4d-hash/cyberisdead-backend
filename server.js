@@ -645,17 +645,23 @@ app.get("/api/audio-proxy", async (req,res)=>{
 
 
     res.setHeader(
-      "Content-Type",
-      response.headers["content-type"] || "audio/mpeg"
-    );
+  "Content-Type",
+  "audio/mpeg"
+);
+
+res.setHeader(
+  "Accept-Ranges",
+  "bytes"
+);
+
 
 
     if(response.headers["content-range"]){
-      res.setHeader(
-        "Content-Range",
-        response.headers["content-range"]
-      );
-    }
+  res.setHeader(
+    "Content-Range",
+    response.headers["content-range"]
+  );
+}
 
 
     if(response.headers["accept-ranges"]){
