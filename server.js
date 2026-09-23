@@ -614,44 +614,89 @@ app.get(
   }
 );
 
-app.get("/api/audio-proxy", async (req, res) => {
+app.get("/api/audio-proxy", async (req,res)=>{
   try {
     const url = req.query.url;
 
-    if (!url) {
+    if(!url){
       return res.status(400).send("URL ausente");
     }
 
-    const response = await axios.get(url, {
-      responseType: "stream",
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "audio/mpeg"
-      }
+    const headers = {
+      "User-Agent":"Mozilla/5.0",
+      "Accept":"audio/mpeg"
+    };
+
+    if(req.headers.range){
+      headers.Range = req.headers.range;
+    }
+
+    const response = await axios.get(url,{
+      responseType:"stream",
+      headers,
+      validateStatus:(status)=>[
+        200,
+        206
+      ].includes(status)
     });
+
+
+    res.status(response.status);
+
 
     res.setHeader(
       "Content-Type",
       response.headers["content-type"] || "audio/mpeg"
     );
 
-    if (response.headers["content-length"]) {
+
+    if(response.headers["content-range"]){
+      res.setHeader(
+        "Content-Range",
+        response.headers["content-range"]
+      );
+    }
+
+
+    if(response.headers["accept-ranges"]){
+      res.setHeader(
+        "Accept-Ranges",
+        response.headers["accept-ranges"]
+      );
+    }else{
+      res.setHeader(
+        "Accept-Ranges",
+        "bytes"
+      );
+    }
+
+
+    if(response.headers["content-length"]){
       res.setHeader(
         "Content-Length",
         response.headers["content-length"]
       );
     }
 
+
     res.setHeader(
       "Cache-Control",
-      "public, max-age=3600"
+      "public,max-age=3600"
     );
+
 
     response.data.pipe(res);
 
-  } catch (error) {
-    console.error("ERRO PROXY:", error.message);
-    res.status(500).send("Erro no proxy de áudio");
+
+  } catch(error){
+
+    console.error(
+      "ERRO PROXY:",
+      error.message
+    );
+
+    res.status(500)
+      .send("Erro no proxy de áudio");
   }
 });
 
